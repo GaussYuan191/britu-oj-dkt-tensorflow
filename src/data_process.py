@@ -14,12 +14,17 @@ def getDataByMysql():
         i = 0  # 计数
         #从数据库中读取数据
         with cur as curdemo:
-            sql = 'select * from dkt_demo1'
+            sql = 'select * from problem_result'
             curdemo.execute(sql)
             result = list(curdemo.fetchall())
             for datalist in result:
-                # 学生ID  问题ID    正确性
-                student, problem, is_correct = int(datalist[1]), int(datalist[2]), int(datalist[3])
+                # 学生ID  问题ID
+                student, problem = int(datalist[1]), int(datalist[2])
+                # 正确性
+                if int(datalist[6] == 1):
+                    is_correct = 1
+                else:
+                    is_correct = 0
                 num_skills = max(num_skills, problem)  # 找题目的数量
                 seqs_by_student[student] = seqs_by_student.get(student, []) + [[problem, is_correct]]
     finally:

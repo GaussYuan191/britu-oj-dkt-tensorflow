@@ -39,13 +39,13 @@ def get_Data():
     cur = init_mysql()
     try:
         with cur as cursor:
-            sql = 'select * from dkt_demo1'
+            sql = 'select * from problem_result'
             cur.execute(sql)
-            result = list(cur.fetchall())
-            for datalist in result:
-                print(datalist[1])
-                print(datalist[2])
-            # print(result)
+            result = list(cur.fetchall()[0])
+            # for datalist in result:
+            #     print(datalist[1])
+            #     print(datalist[2])
+            print(result)
     finally:
         cur.close()
 if __name__ == '__main__':

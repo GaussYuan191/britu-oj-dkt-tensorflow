@@ -13,10 +13,10 @@ def index():
 
 @app.route('/getAbility',methods = ['GET','POST'])
 def getAbility():
-    pid =int(request.args.get('pid'))
+    pid =int(request.args.get('u_id'))
 
     try:
-        ability = run([pid])
+        ability = run([u_id])
         result = {"status": "200", "data": ability}
         return jsonify(result)
     finally:

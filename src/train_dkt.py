@@ -10,12 +10,12 @@ from src.data_process import getDataByMysql, split_dataset
 
 
 
-def run(pid):
+def run(u_id):
 
     # process data
     seqs_by_student, num_skills = getDataByMysql()
     train_seqs = seqs_by_student
-    test_seqs = list(pid)
+    test_seqs = list(u_id)
     batch_size = 10
     train_generator = DataGenerator(train_seqs, batch_size=batch_size, num_skills=num_skills)
     test_generator = DataGenerator(test_seqs, batch_size=batch_size, num_skills=num_skills)
