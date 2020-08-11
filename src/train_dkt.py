@@ -6,13 +6,16 @@ from src.TensorFlowDKT import *
 from src.data_process import *
 from sklearn.metrics import roc_auc_score, precision_recall_fscore_support, accuracy_score
 
-from src.data_process import read_file, split_dataset
+from src.data_process import getDataByMysql, split_dataset
 
 
-def run():
+
+def run(pid):
+
     # process data
-    seqs_by_student, num_skills = read_file("../data/assistments.txt")
-    train_seqs, test_seqs = split_dataset(seqs_by_student)
+    seqs_by_student, num_skills = getDataByMysql()
+    train_seqs = seqs_by_student
+    test_seqs = list(pid)
     batch_size = 10
     train_generator = DataGenerator(train_seqs, batch_size=batch_size, num_skills=num_skills)
     test_generator = DataGenerator(test_seqs, batch_size=batch_size, num_skills=num_skills)
@@ -28,8 +31,10 @@ def run():
     # create session and init all variables
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
+    saver = tf.train.Saver()  # 生成saver
     lr = 0.4
     lr_decay = 0.92
+    ability = 0
     # run epoch
     for epoch in range(10):
         # train
@@ -63,8 +68,12 @@ def run():
         precision, recall, f_score, _ = precision_recall_fscore_support(targets, binary_preds)
         print("\n f_score={}".format(f_score))
         print("\n auc={0}, accuracy={1}, precision={2}, recall={3}".format(auc_value, accuracy, precision, recall))
+        saver.save(sess, "../model/dkt-model")
+        ability += f_score
 
 
+    result = list(ability/10)
+    return (result[0] + result[1]) / 2
 if __name__ == "__main__":
 
-    run()
+    print(run())

@@ -1,19 +1,29 @@
 import numpy as np
 import random
 import warnings
+from src.mysql_test import init_mysql
 warnings.filterwarnings("ignore")    #忽略警告信息
 
 #读文件
-def read_file(dataset_path):
+def getDataByMysql():
     seqs_by_student = {}      #学生序列
     num_skills = 0            #题库题目数量
-    with open(dataset_path, 'r') as f:  #读文件
-        for line in f:
-            fields = line.strip().split()    #去掉空格
-            # 学生ID  问题ID    正确性
-            student, problem, is_correct = int(fields[0]), int(fields[1]), int(fields[2])
-            num_skills = max(num_skills, problem)  #找题目的数量
-            seqs_by_student[student] = seqs_by_student.get(student, []) + [[problem, is_correct]]
+    cur = init_mysql()
+
+    try:
+        i = 0  # 计数
+        #从数据库中读取数据
+        with cur as curdemo:
+            sql = 'select * from dkt_demo1'
+            curdemo.execute(sql)
+            result = list(curdemo.fetchall())
+            for datalist in result:
+                # 学生ID  问题ID    正确性
+                student, problem, is_correct = int(datalist[1]), int(datalist[2]), int(datalist[3])
+                num_skills = max(num_skills, problem)  # 找题目的数量
+                seqs_by_student[student] = seqs_by_student.get(student, []) + [[problem, is_correct]]
+    finally:
+        cur.close()
     return seqs_by_student, num_skills + 1
 
 #获得训练序列和测试序列  学生序列        采样率            随机种子
@@ -22,6 +32,7 @@ def split_dataset(seqs_by_student, sample_rate=0.2, random_seed=1):
     random.seed(random_seed)
     #随机生成序列
     test_keys = random.sample(sorted_keys, int(len(sorted_keys) * sample_rate))
+    # test_keys = [10]
     test_seqs = [seqs_by_student[k] for k in seqs_by_student if k in test_keys]
     train_seqs = [seqs_by_student[k] for k in seqs_by_student if k not in test_keys]
     return train_seqs, test_seqs
