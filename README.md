@@ -3,6 +3,7 @@
 # requirements
 tensorflow>=1.0.0 <=2.0.0
 scikit-learn>=0.17.1
+flask
 # run this demo
 
-`$ python train_dkt.py `
+`$ python main.py `
